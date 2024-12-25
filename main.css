@@ -1,0 +1,79 @@
+body > main {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container-fluid {
+  max-width: 1024px;
+}
+
+textarea {
+  field-sizing: content;
+}
+
+ul#chat > article#github {
+  text-align: center;
+}
+
+ul#chat {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  gap: 0.5rem;
+  padding-left: 0;
+  overflow-y: scroll;
+  scroll-behavior: smooth;
+  margin-bottom: 1rem;
+}
+
+ul#chat > li {
+  width: fit-content;
+  list-style-type: none;
+  border-radius: 0.5rem;
+  margin-bottom: 0;
+  padding: 1rem;
+}
+
+ul#chat > li.user {
+  background-color: #0172ad;
+  align-self: flex-end;
+}
+
+ul#chat > li.assistant {
+  background-color: #525f7a;
+}
+
+ul#chat > li.assistant :last-child {
+  margin-bottom: 0;
+}
+
+section#actions {
+  margin-bottom: 0;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  flex-direction: row-reverse;
+}
+
+section#actions > button[type="submit"],
+section#settings > button[type="submit"] {
+  margin-bottom: 0;
+  font-size: small;
+  width: 5rem;
+}
+
+section#actions > small {
+  flex-grow: 1;
+}
+
+section#settings {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0;
+}
+
+.warning {
+  color: #ffc107;
+}
