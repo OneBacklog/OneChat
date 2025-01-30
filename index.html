@@ -46,8 +46,8 @@
           <option v-for="model in models" :value="model.value">{{ model.text }}</option>
         </select>
         <small class="warning">* changing the model will also clear the conversation.</small>
-        <textarea v-model="settings.system" rows="5" placeholder="System Instruction" :disabled="is_o1"></textarea>
-        <small v-if="is_o1" class="warning">* o1 models don't support custom system instruction.</small>
+        <textarea v-model="settings.system" rows="5" placeholder="System Instruction" :disabled="is_reasoning"></textarea>
+        <small v-if="is_reasoning" class="warning">* reasoning models don't support custom system instruction.</small>
         <section id="settings">
           <a href="https://github.com/OneBacklog/OneChat" target="_blank">Source Code <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#4cb2ff"><path d="m243-240-51-51 405-405H240v-72h480v480h-72v-357L243-240Z"/></svg></a>
           <button type="submit">SAVE</button>

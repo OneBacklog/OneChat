@@ -13,11 +13,11 @@ createApp({
     loading: false,
     input: '',
     models: [
-      { value: 'gpt-4o', text: 'GPT-4o' },
-      { value: 'gpt-4o-mini', text: 'GPT-4o Mini' },
       { value: 'o1', text: 'o1' },
       { value: 'o1-mini', text: 'o1 Mini' },
       { value: 'DeepSeek-R1', text: 'DeepSeek R1' },
+      { value: 'gpt-4o', text: 'GPT-4o' },
+      { value: 'gpt-4o-mini', text: 'GPT-4o Mini' },
       { value: 'Llama-3.3-70B-Instruct', text: 'Llama 3.3' }
     ]
   }),
@@ -27,6 +27,9 @@ createApp({
     },
     is_o1() {
       return ['o1', 'o1-mini'].includes(this.settings.model)
+    },
+    is_reasoning() {
+      return this.settings.model == 'DeepSeek-R1' || this.is_o1
     }
   },
   mounted() {
@@ -67,26 +70,18 @@ createApp({
     payload() {
       const messages = this.messages.slice(-7)
 
-      if (this.is_o1) {
-        return {
-          max_completion_tokens: 32768,
-          model: this.settings.model,
-          messages: messages
-        }
-      } else {
-        if (this.settings.model != 'DeepSeek-R1' && messages.find(message => message.role == 'system') == undefined) {
-          messages.unshift({ role: 'system', content: this.settings.system })
-        }
+      if (!this.is_reasoning && messages.find(message => message.role == 'system') == undefined) {
+        messages.unshift({ role: 'system', content: this.settings.system })
+      }
 
-        let max_tokens = 16384
-        if (['Llama-3.3-70B-Instruct', 'DeepSeek-R1'].includes(this.settings.model)) { max_tokens = 4096 }
+      let max_tokens = 16384
+      if (['Llama-3.3-70B-Instruct', 'DeepSeek-R1'].includes(this.settings.model)) { max_tokens = 4096 }
 
-        return {
-          model: this.settings.model,
-          max_tokens: max_tokens,
-          messages: messages,
-          temperature: 0.7
-        }
+      return {
+        messages: messages,
+        model: this.settings.model,
+        max_completion_tokens: max_tokens,
+        temperature: this.is_o1 ? 1.0 : 0.7
       }
     },
     chat() {
