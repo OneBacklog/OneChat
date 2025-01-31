@@ -4,7 +4,7 @@
   <meta name="color-scheme" content="dark">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="pico.min.css">
-  <link rel="stylesheet" type="text/css" href="main.css">
+  <link rel="stylesheet" type="text/css" href="main.css?v=1">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="favicon.png">
   <title>OneChat</title><meta charset="utf-8">
@@ -24,7 +24,7 @@
       </template>
     </ul>
     <form @submit.prevent="send()">
-      <textarea v-model="input" rows="3" :placeholder="placeholder" :disabled="loading" required></textarea>
+      <textarea v-model="input" rows="2" :placeholder="placeholder" :disabled="loading" required></textarea>
       <section id="actions">
         <button type="submit" :aria-busy="loading" :disabled="loading">{{ loading ? '' : 'SEND' }}</button>
         <small>Total Tokens: {{ total_tokens }}</small>
@@ -34,7 +34,7 @@
     </form>
   </main>
   <!-- Settings Modal -->
-  <dialog :open="open">
+  <dialog :open="settings.open">
     <article>
       <header>
         <button aria-label="Close" rel="prev" @click="toggle()"></button>
@@ -43,9 +43,9 @@
       <form @submit.prevent="save()">
         <input type="text" v-model="settings.token" placeholder="GitHub Token" required>
         <select v-model="settings.model" required>
-          <option v-for="model in models" :value="model.value">{{ model.text }}</option>
+          <option v-for="model in models" :value="model.value">{{ model.name }}</option>
         </select>
-        <small class="warning">* changing the model will also clear the conversation.</small>
+        <small class="warning">* changing the model will also clear the current conversation.</small>
         <textarea v-model="settings.system" rows="5" placeholder="System Instruction" :disabled="is_reasoning"></textarea>
         <small v-if="is_reasoning" class="warning">* reasoning models don't support custom system instruction.</small>
         <section id="settings">
@@ -57,6 +57,6 @@
   </dialog>
   <script src="vue.global.prod.js" defer></script>
   <script src="marked.min.js" defer></script>
-  <script src="main.js" defer></script>
+  <script src="main.js?v=1" defer></script>
 </body>
 </html>
