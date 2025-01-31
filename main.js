@@ -30,6 +30,12 @@ createApp({
     },
     is_reasoning() {
       return this.settings.model == 'DeepSeek-R1' || this.is_o1
+    },
+    is_streaming_supported() {
+      return ['gpt-4o', 'gpt-4o-mini', 'DeepSeek-R1'].includes(this.settings.model)
+    },
+    is_small_model() {
+      return ['Llama-3.3-70B-Instruct', 'DeepSeek-R1'].includes(this.settings.model)
     }
   },
   mounted() {
@@ -74,16 +80,17 @@ createApp({
         messages.unshift({ role: 'system', content: this.settings.system })
       }
 
-      let max_tokens = 16384
-      if (['Llama-3.3-70B-Instruct', 'DeepSeek-R1'].includes(this.settings.model)) { max_tokens = 4096 }
-
-      return {
+      const data = {
         model: this.settings.model,
-        max_completion_tokens: max_tokens,
+        max_completion_tokens: this.is_small_model ? 4096 : 16384,
         temperature: this.is_o1 ? 1.0 : 0.7,
-        stream_options: { include_usage: true },
-        messages: messages,
-        stream: true
+        messages: messages
+      }
+
+      if (this.is_streaming_supported) {
+        return { ...data, stream: true, stream_options: { include_usage: true } }
+      } else {
+        return data
       }
     },
     async chat() {
@@ -96,6 +103,31 @@ createApp({
         body: JSON.stringify(this.payload())
       })
 
+      this.is_streaming_supported ? await this.stream(response) : await this.parse(response)
+
+      this.updateLocalStorage()
+      this.loading = false
+      this.input = ''
+    },
+    async parse(response) {
+      await response.json().then(data => {
+        if (response.status == 200) {
+          this.total_tokens = data.usage.total_tokens
+          this.messages.push({ role: 'assistant', content: marked.parse(data.choices[0].message.content) })
+        } else {
+          let content = '[Error] ' + data.error.message
+
+          if (data.error.code == 'unavailable_model') {
+            const model = this.models.find(model => model.value === this.settings.model)
+            content += `<br>You may need a GitHub Copilot Pro to use ${model.text}.`
+          }
+
+          this.messages.push({ role: 'assistant', content: content })
+        }
+      })
+      this.scroll()
+    },
+    async stream(response) {
       if (response.status == 200) {
         this.messages.push({ role: 'assistant', content: '' })
         const reader = response.body.getReader()
@@ -138,13 +170,9 @@ createApp({
           }
 
           this.messages.push({ role: 'assistant', content: content })
-          this.scroll()
         })
+        this.scroll()
       }
-
-      this.updateLocalStorage()
-      this.loading = false
-      this.input = ''
     }
   }
 }).mount('body')
