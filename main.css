@@ -10,6 +10,7 @@ body > main {
 
 textarea {
   field-sizing: content;
+  scrollbar-width: none;
 }
 
 code {
@@ -31,7 +32,7 @@ ul#chat {
   flex-grow: 1;
   gap: 0.5rem;
   padding-left: 0;
-  overflow-y: scroll;
+  overflow-y: auto;
   scroll-behavior: smooth;
   margin-bottom: 1rem;
 }

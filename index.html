@@ -24,7 +24,7 @@
       </template>
     </ul>
     <form @submit.prevent="send()">
-      <textarea v-model="input" rows="2" :placeholder="placeholder" :disabled="loading" required></textarea>
+      <textarea @input="resize" v-model="input" rows="1" :placeholder="placeholder" :disabled="loading" required></textarea>
       <section id="actions">
         <button type="submit" :aria-busy="loading" :disabled="loading">{{ loading ? '' : 'SEND' }}</button>
         <small>Total Tokens: {{ total_tokens }}</small>
@@ -46,7 +46,7 @@
           <option v-for="model in models" :value="model.value">{{ model.name }}</option>
         </select>
         <small class="warning">* changing the model will also clear the current conversation.</small>
-        <textarea v-model="settings.system" rows="5" placeholder="System Instruction" :disabled="is_reasoning"></textarea>
+        <textarea v-model="settings.system" rows="5" placeholder="Custom System Instruction" :disabled="is_reasoning"></textarea>
         <small v-if="is_reasoning" class="warning">* reasoning models don't support custom system instruction.</small>
         <section id="settings">
           <a href="https://github.com/OneBacklog/OneChat" target="_blank">Source Code <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#4cb2ff"><path d="m243-240-51-51 405-405H240v-72h480v480h-72v-357L243-240Z"/></svg></a>

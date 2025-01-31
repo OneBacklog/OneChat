@@ -53,6 +53,13 @@ createApp({
       localStorage.setItem('model', this.settings.model)
       this.settings.open = false
     },
+    resize(e) {
+      const userAgent = navigator.userAgent
+      if (userAgent.indexOf("Firefox") > -1 || (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") === -1)) {
+        e.target.style.height = 'auto'
+        e.target.style.height = e.target.scrollHeight + 'px'
+      }
+    },
     scroll(block='end') {
       setTimeout(() => document.querySelector("ul#chat > li:last-child")?.scrollIntoView({ behavior: 'smooth', block: block }))
     },
