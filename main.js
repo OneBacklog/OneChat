@@ -15,6 +15,8 @@ createApp({
     models: [
       { value: 'o1', text: 'o1' },
       { value: 'o1-mini', text: 'o1 Mini' },
+      { value: 'o3', text: 'o3' },
+      { value: 'o3-mini', text: 'o3 Mini' },
       { value: 'DeepSeek-R1', text: 'DeepSeek R1' },
       { value: 'gpt-4o', text: 'GPT-4o' },
       { value: 'gpt-4o-mini', text: 'GPT-4o Mini' },
@@ -25,11 +27,11 @@ createApp({
     placeholder() {
       return 'Chat with ' + this.models.find(model => model.value === this.settings.model).text
     },
-    is_o1() {
-      return ['o1', 'o1-mini'].includes(this.settings.model)
+    is_oX() {
+      return ['o1', 'o1-mini', 'o3', 'o3-mini'].includes(this.settings.model)
     },
     is_reasoning() {
-      return this.settings.model == 'DeepSeek-R1' || this.is_o1
+      return this.settings.model == 'DeepSeek-R1' || this.is_oX
     },
     is_streaming_supported() {
       return ['gpt-4o', 'gpt-4o-mini', 'DeepSeek-R1'].includes(this.settings.model)
@@ -83,7 +85,7 @@ createApp({
       const data = {
         model: this.settings.model,
         max_completion_tokens: this.has_small_output ? 4096 : 16384,
-        temperature: this.is_o1 ? 1.0 : 0.7,
+        temperature: this.is_oX ? 1.0 : 0.7,
         messages: messages
       }
 
