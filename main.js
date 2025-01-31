@@ -94,6 +94,8 @@ createApp({
       }
     },
     async chat() {
+      this.messages.push({ role: 'assistant', content: 'Thinking...' })
+
       const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
         method: 'POST',
         headers: {
@@ -112,24 +114,17 @@ createApp({
     async parse(response) {
       await response.json().then(data => {
         if (response.status == 200) {
+          this.messages[this.messages.length - 1].content = marked.parse(data.choices[0].message.content)
           this.total_tokens = data.usage.total_tokens
-          this.messages.push({ role: 'assistant', content: marked.parse(data.choices[0].message.content) })
+          this.scroll('start')
         } else {
-          let content = '[Error] ' + data.error.message
-
-          if (data.error.code == 'unavailable_model') {
-            const model = this.models.find(model => model.value === this.settings.model)
-            content += `<br>You may need a GitHub Copilot Pro to use ${model.text}.`
-          }
-
-          this.messages.push({ role: 'assistant', content: content })
+          this.error(data)
         }
       })
-      this.scroll()
     },
     async stream(response) {
       if (response.status == 200) {
-        this.messages.push({ role: 'assistant', content: '' })
+        this.messages[this.messages.length - 1].content = ''
         const reader = response.body.getReader()
         const decoder = new TextDecoder()
         let content = ''
@@ -161,18 +156,19 @@ createApp({
         answer.content = marked.parse(answer.content)
         this.scroll()
       } else {
-        await response.json().then(data => {
-          let content = '[Error] ' + data.error.message
-
-          if (data.error.code == 'unavailable_model') {
-            const model = this.models.find(model => model.value === this.settings.model)
-            content += `<br>You may need a GitHub Copilot Pro to use ${model.text}.`
-          }
-
-          this.messages.push({ role: 'assistant', content: content })
-        })
-        this.scroll()
+        response.json().then(data => this.error(data))
       }
+    },
+    async error(data) {
+      let content = '[Error] ' + data.error.message
+
+      if (data.error.code == 'unavailable_model') {
+        const model = this.models.find(model => model.value === this.settings.model)
+        content += `<br>You may need a GitHub Copilot Pro to use ${model.text}.`
+      }
+
+      this.messages[this.messages.length - 1].content = content
+      this.scroll('start')
     }
   }
 }).mount('body')
