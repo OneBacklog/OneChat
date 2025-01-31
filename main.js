@@ -33,7 +33,7 @@ createApp({
     }
   },
   mounted() {
-    this.scroll()
+    this.scroll('start')
   },
   methods: {
     toggle() {
@@ -46,8 +46,8 @@ createApp({
       localStorage.setItem('model', this.settings.model)
       this.open = false
     },
-    scroll() {
-      setTimeout(() => document.querySelector("ul#chat > li:last-child")?.scrollIntoView())
+    scroll(block='end') {
+      setTimeout(() => document.querySelector("ul#chat > li:last-child")?.scrollIntoView({ behavior: 'smooth', block: block }))
     },
     clear(force=false) {
       if (force || confirm('Clear Conversation?')) {
@@ -78,14 +78,16 @@ createApp({
       if (['Llama-3.3-70B-Instruct', 'DeepSeek-R1'].includes(this.settings.model)) { max_tokens = 4096 }
 
       return {
-        messages: messages,
         model: this.settings.model,
         max_completion_tokens: max_tokens,
-        temperature: this.is_o1 ? 1.0 : 0.7
+        temperature: this.is_o1 ? 1.0 : 0.7,
+        stream_options: { include_usage: true },
+        messages: messages,
+        stream: true
       }
     },
-    chat() {
-      fetch('https://models.inference.ai.azure.com/chat/completions', {
+    async chat() {
+      const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,22 +95,56 @@ createApp({
         },
         body: JSON.stringify(this.payload())
       })
-      .then(response => response.json().then(data => {
-        if (response.status == 200) {
-          this.total_tokens = data.usage.total_tokens
-          this.messages.push({ role: 'assistant', content: marked.parse(data.choices[0].message.content) })
-        } else {
-          this.messages.push({ role: 'assistant', content: `Error: ${data.error.message}` })
+
+      if (response.status == 200) {
+        this.messages.push({ role: 'assistant', content: '' })
+        const reader = response.body.getReader()
+        const decoder = new TextDecoder()
+        let content = ''
+        let partial = ''
+
+        while(true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          content = decoder.decode(value, { stream: true })
+
+          content.split('data: ').forEach(chunk => {
+            try {
+              const data = JSON.parse(partial + chunk)
+              partial = ''
+
+              if (data.usage?.total_tokens) this.total_tokens = data.usage.total_tokens
+              if (!data.choices[0].delta.content) return
+
+              this.messages[this.messages.length - 1].content += data.choices[0].delta.content
+              this.scroll()
+            }
+            catch (error) {
+              partial = chunk
+            }
+          })
+        }
+
+        const answer = this.messages[this.messages.length - 1]
+        answer.content = marked.parse(answer.content)
+        this.scroll()
+      } else {
+        await response.json().then(data => {
+          let content = '[Error] ' + data.error.message
+
           if (data.error.code == 'unavailable_model') {
             const model = this.models.find(model => model.value === this.settings.model)
-            this.messages.push({ role: 'assistant', content: `You may need a GitHub Copilot subscription to use ${model.text}.` })
+            content += `<br>You may need a GitHub Copilot Pro to use ${model.text}.`
           }
-        }
-        this.scroll()
-        this.input = ''
-        this.loading = false
-        this.updateLocalStorage()
-      }))
+
+          this.messages.push({ role: 'assistant', content: content })
+          this.scroll()
+        })
+      }
+
+      this.updateLocalStorage()
+      this.loading = false
+      this.input = ''
     }
   }
 }).mount('body')
