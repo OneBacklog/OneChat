@@ -4,19 +4,22 @@ Focused Chat UI for GitHub Models
 
 ### Features
 
-- Simple and Lightweight
-- Custom System Instruction
+- No Runtime Needed
+- Minimalist and Lightweight
+- Support Custom System Instruction
 - Available on iOS and Android as PWA
 
 ### Models
 
+- o1*
+- o1-Mini*
+- o3-Mini*
+- DeepSeek R1
 - GPT-4o
 - GPT-4o Mini
-- o1-Preview*
-- o1-Mini*
-- Llama 3.3 70B
+- Llama 3.3
 
-\*Note: o1 models require GitHub Copilot Pro subscription.
+\*Note: You may need GitHub Copilot Pro subscription to use o1/o3 models.
 
 ### Privacy
 
