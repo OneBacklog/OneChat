@@ -34,8 +34,8 @@ createApp({
     is_streaming_supported() {
       return ['gpt-4o', 'gpt-4o-mini', 'DeepSeek-R1'].includes(this.settings.model)
     },
-    is_small_model() {
-      return ['Llama-3.3-70B-Instruct', 'DeepSeek-R1'].includes(this.settings.model)
+    has_small_output() {
+      return ['Llama-3.3-70B-Instruct', 'DeepSeek-R1', 'gpt-4o-mini'].includes(this.settings.model)
     }
   },
   mounted() {
@@ -82,7 +82,7 @@ createApp({
 
       const data = {
         model: this.settings.model,
-        max_completion_tokens: this.is_small_model ? 4096 : 16384,
+        max_completion_tokens: this.has_small_output ? 4096 : 16384,
         temperature: this.is_o1 ? 1.0 : 0.7,
         messages: messages
       }
