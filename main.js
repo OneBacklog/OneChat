@@ -29,8 +29,8 @@ createApp({
     is_oX() {
       return ['o1', 'o1-mini', 'o3-mini'].includes(this.settings.model)
     },
-    is_reasoning() {
-      return this.settings.model == 'DeepSeek-R1' || this.is_oX
+    is_o1_mini() {
+      return this.settings.model === 'o1-mini'
     },
     is_streaming_supported() {
       return ['gpt-4o', 'gpt-4o-mini', 'DeepSeek-R1'].includes(this.settings.model)
@@ -84,7 +84,7 @@ createApp({
     payload() {
       const messages = this.messages.slice(-7)
 
-      if (!this.is_reasoning && messages.find(message => message.role == 'system') == undefined) {
+      if (!this.is_o1_mini && messages.find(message => message.role == 'system') == undefined) {
         messages.unshift({ role: 'system', content: this.settings.system })
       }
 
