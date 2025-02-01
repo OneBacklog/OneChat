@@ -42,7 +42,7 @@
         <strong>Settings</strong>
       </header>
       <form @submit.prevent="save()">
-        <input type="password" v-model="form.token" placeholder="GitHub Token" required>
+        <input type="password" v-model="form.token" placeholder="GitHub Token" autocomplete="off" required>
         <select v-model="form.model" required>
           <option v-for="model in models" :value="model.value">{{ model.name }}</option>
         </select>
