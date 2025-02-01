@@ -69,11 +69,14 @@ section#actions > button[type="submit"],
 section#settings > button[type="submit"] {
   margin-bottom: 0;
   font-size: small;
+  font-weight: 500;
   width: 5rem;
 }
 
 section#actions > small {
   flex-grow: 1;
+  margin-top: 0.2rem;
+  margin-left: 0.4rem;
 }
 
 section#settings {
@@ -81,6 +84,10 @@ section#settings {
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0;
+
+  a {
+    padding-right: 0.5rem;
+  }
 }
 
 .warning {
