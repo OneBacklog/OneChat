@@ -25,8 +25,8 @@ createApp({
     is_oX() {
       return ['o1', 'o1-mini', 'o3-mini'].includes(this.settings.model)
     },
-    is_instruction_supported(form=true) {
-      return !['o1-mini', 'DeepSeek-R1'].includes(form ? this.form.model : this.settings.model)
+    is_instruction_unsupported() {
+      return ['o1-mini', 'DeepSeek-R1'].includes(this.form.model)
     },
     is_streaming_supported() {
       return ['gpt-4o', 'gpt-4o-mini', 'DeepSeek-R1'].includes(this.settings.model)
@@ -100,8 +100,9 @@ createApp({
     },
     payload() {
       const messages = this.messages.slice(-7)
+      const is_instruction_supported = !['o1-mini', 'DeepSeek-R1'].includes(this.settings.model)
 
-      if (this.is_instruction_supported(false) && messages.find(message => message.role == 'system') == undefined) {
+      if (is_instruction_supported && messages.find(message => message.role == 'system') == undefined) {
         messages.unshift({ role: 'system', content: this.settings.system })
       }
 
