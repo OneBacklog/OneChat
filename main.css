@@ -51,7 +51,6 @@ ul#chat > li.user {
 
 ul#chat > li.assistant {
   background-color: #525f7a;
-  min-height: 60px;
 }
 
 ul#chat > li.assistant :last-child {
