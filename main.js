@@ -20,13 +20,13 @@ createApp({
   }),
   computed: {
     placeholder() {
-      return 'Chat with ' + this.models.find(model => model.value === this.settings.model).name
+      return 'Chat with ' + this.models.find(model => model.value == this.settings.model).name
     },
     is_oX() {
       return ['o1', 'o1-mini', 'o3-mini'].includes(this.settings.model)
     },
-    is_o1_mini() {
-      return this.form.model === 'o1-mini'
+    is_instruction_supported(form=true) {
+      return !['o1-mini', 'DeepSeek-R1'].includes(form ? this.form.model : this.settings.model)
     },
     is_streaming_supported() {
       return ['gpt-4o', 'gpt-4o-mini', 'DeepSeek-R1'].includes(this.settings.model)
@@ -72,7 +72,7 @@ createApp({
     },
     resize(e) {
       const userAgent = navigator.userAgent
-      if (userAgent.indexOf("Firefox") > -1 || (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") === -1)) {
+      if (userAgent.indexOf("Firefox") > -1 || (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") == -1)) {
         e.target.style.height = 'auto'
         e.target.style.height = e.target.scrollHeight + 'px'
       }
@@ -101,7 +101,7 @@ createApp({
     payload() {
       const messages = this.messages.slice(-7)
 
-      if (this.settings.model != 'o1-mini' && messages.find(message => message.role == 'system') == undefined) {
+      if (this.is_instruction_supported(false) && messages.find(message => message.role == 'system') == undefined) {
         messages.unshift({ role: 'system', content: this.settings.system })
       }
 
@@ -188,7 +188,7 @@ createApp({
       let content = '[Error] ' + data.error.message
 
       if (data.error.code == 'unavailable_model') {
-        const model = this.models.find(model => model.value === this.settings.model)
+        const model = this.models.find(model => model.value == this.settings.model)
         content += `<br>You may need GitHub Copilot Pro subscription to use ${model.name}.`
       }
 
