@@ -5,7 +5,7 @@
   <meta name="color-scheme" content="dark">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" type="text/css" href="pico.min.css">
-  <link rel="stylesheet" type="text/css" href="main.css?v=3">
+  <link rel="stylesheet" type="text/css" href="main.css?v=4">
   <link rel="manifest" href="/manifest.json">
   <link rel="icon" href="favicon.png">
   <title>OneChat by OneBacklog</title>
@@ -18,8 +18,8 @@
       </article>
       <template v-for="message in messages">
         <li
-          v-if="message.role !== 'system'"
-          :class="message.role === 'user' ? 'user' : 'assistant'"
+          v-if="message.role != 'system'"
+          :class="message.role"
           v-html="message.content"
         />
       </template>
@@ -60,6 +60,6 @@
   </dialog>
   <script src="vue.global.prod.js" defer></script>
   <script src="marked.min.js" defer></script>
-  <script src="main.js?v=3" defer></script>
+  <script src="main.js?v=4" defer></script>
 </body>
 </html>

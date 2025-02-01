@@ -49,6 +49,10 @@ ul#chat > li.user {
   align-self: flex-end;
 }
 
+ul#chat > li.thoughts {
+  background-color: #5E206B;
+}
+
 ul#chat > li.assistant {
   background-color: #525f7a;
 }

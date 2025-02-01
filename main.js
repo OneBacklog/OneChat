@@ -25,6 +25,9 @@ createApp({
     is_oX() {
       return ['o1', 'o1-mini', 'o3-mini'].includes(this.settings.model)
     },
+    is_r1() {
+      return this.settings.model == 'DeepSeek-R1'
+    },
     is_instruction_unsupported() {
       return ['o1-mini', 'DeepSeek-R1'].includes(this.form.model)
     },
@@ -99,7 +102,7 @@ createApp({
       this.chat()
     },
     payload() {
-      const messages = this.messages.slice(-7)
+      const messages = this.messages.filter(message => message.role != 'thoughts').slice(-7)
       const is_instruction_supported = !['o1-mini', 'DeepSeek-R1'].includes(this.settings.model)
 
       if (is_instruction_supported && messages.find(message => message.role == 'system') == undefined) {
@@ -120,7 +123,8 @@ createApp({
       }
     },
     async chat() {
-      this.messages.push({ role: 'assistant', content: 'Thinking...' })
+      const body = JSON.stringify(this.payload())
+      this.messages.push({ role: this.is_r1 ? 'thoughts' : 'assistant', content: 'Thinking...' })
 
       const response = await fetch('https://models.inference.ai.azure.com/chat/completions', {
         method: 'POST',
@@ -128,7 +132,7 @@ createApp({
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${this.settings.token}`
         },
-        body: JSON.stringify(this.payload())
+        body: body
       })
 
       this.is_streaming_supported ? await this.stream(response) : await this.parse(response)
@@ -178,9 +182,20 @@ createApp({
           })
         }
 
-        const answer = this.messages[this.messages.length - 1]
-        answer.content = marked.parse(answer.content)
-        this.scroll()
+        const result = this.messages[this.messages.length - 1]
+
+        if (this.is_r1) {
+          const thinkTagsMatcher = result.content.match(/<think>\s*([\s\S]*?)\s*<\/think>/i)
+          const thoughts = thinkTagsMatcher ? thinkTagsMatcher[1].trim() : ''
+          const conclusion = result.content.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
+
+          result.content = marked.parse(thoughts)
+          this.messages.push({ role: 'assistant', content: marked.parse(conclusion) })
+        } else {
+          result.content = marked.parse(result.content)
+        }
+
+        this.scroll('start')
       } else {
         response.json().then(data => this.error(data))
       }
