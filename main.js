@@ -2,12 +2,8 @@ const { createApp } = Vue
 
 createApp({
   data: () => ({
-    settings: {
-      token: localStorage.getItem('token') || '',
-      system: localStorage.getItem('system') || '',
-      model: localStorage.getItem('model') || 'gpt-4o-mini',
-      open: false
-    },
+    form: {},
+    settings: { open: false },
     messages: JSON.parse(localStorage.getItem('messages')) || [],
     total_tokens: localStorage.getItem('total_tokens') || 0,
     loading: false,
@@ -39,19 +35,40 @@ createApp({
       return ['Llama-3.3-70B-Instruct', 'DeepSeek-R1', 'gpt-4o-mini'].includes(this.settings.model)
     }
   },
+  created() {
+    this.load()
+  },
   mounted() {
     this.scroll('start')
   },
   methods: {
+    reform() {
+      this.form = {
+        token: this.settings.token,
+        system: this.settings.system,
+        model: this.settings.model
+      }
+    },
     toggle() {
-      this.settings.open = !this.settings.open
+      if (this.settings.open) {
+        this.settings.open = false
+      } else {
+        this.settings.open = true
+        this.reform()
+      }
+    },
+    load() {
+      this.settings.token = localStorage.getItem('token') || ''
+      this.settings.system = localStorage.getItem('system') || ''
+      this.settings.model = localStorage.getItem('model') || 'gpt-4o-mini'
     },
     save() {
-      if (localStorage.getItem('model') != this.settings.model) this.clear(true)
-      localStorage.setItem('system', this.settings.system)
-      localStorage.setItem('token', this.settings.token)
-      localStorage.setItem('model', this.settings.model)
+      if (this.settings.model != this.form.model) this.clear(true)
+      localStorage.setItem('system', this.form.system)
+      localStorage.setItem('token', this.form.token)
+      localStorage.setItem('model', this.form.model)
       this.settings.open = false
+      this.load()
     },
     resize(e) {
       const userAgent = navigator.userAgent
