@@ -46,7 +46,6 @@
         <select v-model="form.model" required>
           <option v-for="model in models" :value="model.value">{{ model.name }}</option>
         </select>
-        <small v-if="settings.model != form.model" class="warning">* changing the model will clear the current conversation.</small>
         <textarea v-model="form.system" rows="5" placeholder="Custom System Instruction" :disabled="is_instruction_unsupported"></textarea>
         <small v-if="is_instruction_unsupported" class="warning">* custom instruction is unavailable for the selected model.</small>
         <section id="settings">

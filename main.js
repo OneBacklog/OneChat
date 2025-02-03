@@ -3,8 +3,8 @@ const { createApp } = Vue
 createApp({
   data: () => ({
     form: {},
+    messages: [],
     settings: { open: false },
-    messages: JSON.parse(localStorage.getItem('messages')) || [],
     total_tokens: localStorage.getItem('total_tokens') || 0,
     loading: false,
     input: '',
@@ -39,7 +39,8 @@ createApp({
     }
   },
   created() {
-    this.load()
+    this.loadSettings()
+    this.loadMessages()
   },
   mounted() {
     this.scroll('start')
@@ -60,18 +61,21 @@ createApp({
         this.reform()
       }
     },
-    load() {
+    loadSettings() {
       this.settings.token = localStorage.getItem('token') || ''
       this.settings.system = localStorage.getItem('system') || ''
       this.settings.model = localStorage.getItem('model') || 'gpt-4o-mini'
     },
+    loadMessages() {
+      this.messages = JSON.parse(localStorage.getItem('messages_' + this.settings.model)) || []
+    },
     save() {
-      if (this.settings.model != this.form.model) this.clear(true)
       localStorage.setItem('system', this.form.system)
       localStorage.setItem('token', this.form.token)
       localStorage.setItem('model', this.form.model)
+      this.loadSettings()
+      this.loadMessages()
       this.settings.open = false
-      this.load()
     },
     resize(e) {
       const userAgent = navigator.userAgent
@@ -83,15 +87,15 @@ createApp({
     scroll(block='end') {
       setTimeout(() => document.querySelector("ul#chat > li:last-child")?.scrollIntoView({ behavior: 'smooth', block: block }))
     },
-    clear(force=false) {
-      if (force || confirm('Clear Conversation?')) {
+    clear() {
+      if (confirm('Clear Conversation?')) {
         this.messages = []
         this.total_tokens = 0
         this.updateLocalStorage()
       }
     },
     updateLocalStorage() {
-      localStorage.setItem('messages', JSON.stringify(this.messages))
+      localStorage.setItem('messages_' + this.settings.model, JSON.stringify(this.messages))
       localStorage.setItem('total_tokens', this.total_tokens)
     },
     send() {
