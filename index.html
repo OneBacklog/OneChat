@@ -25,7 +25,7 @@
       </template>
     </ul>
     <form @submit.prevent="send()">
-      <textarea @input="resize" v-model="input" rows="1" :placeholder="placeholder" :disabled="loading" required></textarea>
+      <textarea ref="prompt" @input="resize" v-model="input" rows="1" :placeholder="placeholder" :disabled="loading" required></textarea>
       <section id="actions">
         <button type="submit" :aria-busy="loading" :disabled="loading">{{ loading ? '' : 'SEND' }}</button>
         <small><template v-if="total_tokens != 0">Total Tokens: {{ total_tokens }}</template></small>

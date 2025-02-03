@@ -15,6 +15,8 @@ createApp({
       { name: 'DeepSeek R1', value: 'DeepSeek-R1' },
       { name: 'GPT-4o', value: 'gpt-4o' },
       { name: 'GPT-4o Mini', value: 'gpt-4o-mini' },
+      { name: 'Command R', value: 'Cohere-command-r' },
+      { name: 'Command R+', value: 'Cohere-command-r-plus' },
       { name: 'Llama 3.3', value: 'Llama-3.3-70B-Instruct' }
     ]
   }),
@@ -31,11 +33,11 @@ createApp({
     is_instruction_unsupported() {
       return ['o1-mini', 'DeepSeek-R1'].includes(this.form.model)
     },
-    is_streaming_supported() {
-      return ['gpt-4o', 'gpt-4o-mini', 'DeepSeek-R1'].includes(this.settings.model)
+    is_streaming_unsupported() {
+      return this.is_oX || this.settings.model == 'Llama-3.3-70B-Instruct'
     },
-    has_small_output() {
-      return ['Llama-3.3-70B-Instruct', 'DeepSeek-R1', 'gpt-4o-mini'].includes(this.settings.model)
+    has_large_tokens() {
+      return this.is_oX || this.settings.model == 'gpt-4o'
     }
   },
   created() {
@@ -72,18 +74,20 @@ createApp({
       }
     },
     save() {
-      if (this.settings.model != this.form.model) this.loadData()
       localStorage.setItem('system', JSON.stringify(this.form.system))
       localStorage.setItem('token', this.form.token)
       localStorage.setItem('model', this.form.model)
-      this.loadSettings()
       this.settings.open = false
+      this.loadSettings()
+      this.loadData()
     },
-    resize(e) {
+    resize() {
       const userAgent = navigator.userAgent
       if (userAgent.indexOf("Firefox") > -1 || (userAgent.indexOf("Safari") > -1 && userAgent.indexOf("Chrome") == -1)) {
-        e.target.style.height = 'auto'
-        e.target.style.height = e.target.scrollHeight + 'px'
+        setTimeout(() => {
+          this.$refs.prompt.style.height = 'auto'
+          this.$refs.prompt.style.height = this.$refs.prompt.scrollHeight + 'px'
+        })
       }
     },
     scroll(block='end') {
@@ -104,6 +108,8 @@ createApp({
       if (this.loading || !this.settings.token) return
       this.messages.push({ role: 'user', content: this.input })
       this.loading = true
+      this.input = ''
+      this.resize()
       this.scroll()
       this.chat()
     },
@@ -117,19 +123,18 @@ createApp({
 
       const data = {
         model: this.settings.model,
-        max_completion_tokens: this.has_small_output ? 4096 : 16384,
+        max_completion_tokens: this.has_large_tokens ? 16384 : 4096,
         temperature: this.is_oX ? 1.0 : 0.7,
         messages: messages
       }
 
-      if (this.is_streaming_supported) {
-        return { ...data, stream: true, stream_options: { include_usage: true } }
-      } else {
+      if (this.is_streaming_unsupported) {
         return data
+      } else {
+        return { ...data, stream: true, stream_options: { include_usage: true } }
       }
     },
     async chat() {
-      this.input = ''
       const body = JSON.stringify(this.payload())
       this.messages.push({ role: this.is_r1 ? 'thoughts' : 'assistant', content: 'Thinking...' })
 
@@ -142,7 +147,7 @@ createApp({
         body: body
       })
 
-      this.is_streaming_supported ? await this.stream(response) : await this.parse(response)
+      this.is_streaming_unsupported ? await this.parse(response) : await this.stream(response)
       this.updateLocalStorage()
       this.loading = false
     },
