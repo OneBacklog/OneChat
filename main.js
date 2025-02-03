@@ -40,42 +40,43 @@ createApp({
   },
   created() {
     this.loadSettings()
-    this.loadModelData()
+    this.loadData()
+    this.loadForm()
   },
   mounted() {
     this.scroll('start')
   },
   methods: {
-    reform() {
+    toggle() {
+      if (this.settings.open) {
+        this.settings.open = false
+      } else {
+        this.settings.open = true
+        this.loadForm()
+      }
+    },
+    loadSettings() {
+      this.settings.token = localStorage.getItem('token') || ''
+      this.settings.model = localStorage.getItem('model') || 'gpt-4o-mini'
+      this.settings.system = JSON.parse(localStorage.getItem('system')) || {}
+    },
+    loadData() {
+      this.total_tokens = localStorage.getItem('total_tokens_' + this.settings.model) || 0
+      this.messages = JSON.parse(localStorage.getItem('messages_' + this.settings.model)) || []
+    },
+    loadForm() {
       this.form = {
         token: this.settings.token,
         system: this.settings.system,
         model: this.settings.model
       }
     },
-    toggle() {
-      if (this.settings.open) {
-        this.settings.open = false
-      } else {
-        this.settings.open = true
-        this.reform()
-      }
-    },
-    loadSettings() {
-      this.settings.token = localStorage.getItem('token') || ''
-      this.settings.system = localStorage.getItem('system') || ''
-      this.settings.model = localStorage.getItem('model') || 'gpt-4o-mini'
-    },
-    loadModelData() {
-      this.messages = JSON.parse(localStorage.getItem('messages_' + this.settings.model)) || []
-      this.total_tokens = localStorage.getItem('total_tokens_' + this.settings.model) || 0
-    },
     save() {
-      localStorage.setItem('system', this.form.system)
+      if (this.settings.model != this.form.model) this.loadData()
+      localStorage.setItem('system', JSON.stringify(this.form.system))
       localStorage.setItem('token', this.form.token)
       localStorage.setItem('model', this.form.model)
       this.loadSettings()
-      this.loadModelData()
       this.settings.open = false
     },
     resize(e) {
@@ -111,7 +112,7 @@ createApp({
       const is_instruction_supported = !['o1-mini', 'DeepSeek-R1'].includes(this.settings.model)
 
       if (is_instruction_supported && messages.find(message => message.role == 'system') == undefined) {
-        messages.unshift({ role: 'system', content: this.settings.system })
+        messages.unshift({ role: 'system', content: this.settings.system[this.settings.model] })
       }
 
       const data = {

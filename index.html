@@ -42,11 +42,11 @@
         <strong>Settings</strong>
       </header>
       <form @submit.prevent="save()">
-        <input type="password" v-model="form.token" placeholder="GitHub Token" autocomplete="off" required>
+        <input type="text" v-model="form.token" placeholder="GitHub Token" autocomplete="off" required>
         <select v-model="form.model" required>
           <option v-for="model in models" :value="model.value">{{ model.name }}</option>
         </select>
-        <textarea v-model="form.system" rows="5" placeholder="Custom System Instruction" :disabled="is_instruction_unsupported"></textarea>
+        <textarea v-model="form.system[form.model]" rows="5" placeholder="Custom System Instruction" :disabled="is_instruction_unsupported"></textarea>
         <small v-if="is_instruction_unsupported" class="warning">* custom instruction is unavailable for the selected model.</small>
         <section id="settings">
           <a href="https://github.com/OneBacklog/OneChat" target="_blank" data-tooltip="Source Code" data-placement="right"><svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="#c2c7d0" viewBox="0 0 16 16">
@@ -59,6 +59,6 @@
   </dialog>
   <script src="vue.global.prod.js" defer></script>
   <script src="marked.min.js" defer></script>
-  <script src="main.js?v=4" defer></script>
+  <script src="main.js?v=5" defer></script>
 </body>
 </html>
