@@ -5,7 +5,7 @@ createApp({
     form: {},
     messages: [],
     settings: { open: false },
-    total_tokens: localStorage.getItem('total_tokens') || 0,
+    total_tokens: 0,
     loading: false,
     input: '',
     models: [
@@ -40,7 +40,7 @@ createApp({
   },
   created() {
     this.loadSettings()
-    this.loadMessages()
+    this.loadModelData()
   },
   mounted() {
     this.scroll('start')
@@ -66,15 +66,16 @@ createApp({
       this.settings.system = localStorage.getItem('system') || ''
       this.settings.model = localStorage.getItem('model') || 'gpt-4o-mini'
     },
-    loadMessages() {
+    loadModelData() {
       this.messages = JSON.parse(localStorage.getItem('messages_' + this.settings.model)) || []
+      this.total_tokens = localStorage.getItem('total_tokens_' + this.settings.model) || 0
     },
     save() {
       localStorage.setItem('system', this.form.system)
       localStorage.setItem('token', this.form.token)
       localStorage.setItem('model', this.form.model)
       this.loadSettings()
-      this.loadMessages()
+      this.loadModelData()
       this.settings.open = false
     },
     resize(e) {
@@ -96,7 +97,7 @@ createApp({
     },
     updateLocalStorage() {
       localStorage.setItem('messages_' + this.settings.model, JSON.stringify(this.messages))
-      localStorage.setItem('total_tokens', this.total_tokens)
+      localStorage.setItem('total_tokens_' + this.settings.model, this.total_tokens)
     },
     send() {
       if (this.loading || !this.settings.token) return
