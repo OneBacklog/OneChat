@@ -123,6 +123,7 @@ createApp({
       }
     },
     async chat() {
+      this.input = ''
       const body = JSON.stringify(this.payload())
       this.messages.push({ role: this.is_r1 ? 'thoughts' : 'assistant', content: 'Thinking...' })
 
@@ -136,10 +137,8 @@ createApp({
       })
 
       this.is_streaming_supported ? await this.stream(response) : await this.parse(response)
-
       this.updateLocalStorage()
       this.loading = false
-      this.input = ''
     },
     async parse(response) {
       await response.json().then(data => {
