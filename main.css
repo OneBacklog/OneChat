@@ -11,6 +11,7 @@ body > main {
 textarea {
   field-sizing: content;
   scrollbar-width: none;
+  resize: none;
 }
 
 code {
@@ -114,4 +115,14 @@ a[data-placement="right"] {
 
 .hidden {
   display: none;
+}
+
+a.closed > svg {
+  transform: rotate(0deg);
+  transition: transform 0.25s ease-in-out;
+}
+
+a.opened > svg {
+  transform: rotate(90deg);
+  transition: transform 0.25s ease-in-out;
 }

@@ -51,9 +51,9 @@ createApp({
   watch: {
     "settings.model"(value) {
       if (this.settings.select) {
+        if (!window.matchMedia("(max-width: 768px)").matches) this.$refs.prompt.focus()
         localStorage.setItem('model', value)
         this.settings.select = false
-        this.$refs.prompt.focus()
         this.loadData()
       }
     }
