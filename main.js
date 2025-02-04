@@ -4,7 +4,7 @@ createApp({
   data: () => ({
     form: {},
     messages: [],
-    settings: { open: false },
+    settings: { open: false, select: false },
     total_tokens: 0,
     loading: false,
     input: '',
@@ -47,6 +47,16 @@ createApp({
   },
   mounted() {
     this.scroll('start')
+  },
+  watch: {
+    "settings.model"(value) {
+      if (this.settings.select) {
+        localStorage.setItem('model', value)
+        this.settings.select = false
+        this.$refs.prompt.focus()
+        this.loadData()
+      }
+    }
   },
   methods: {
     toggle() {
