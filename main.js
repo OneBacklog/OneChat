@@ -10,7 +10,6 @@ createApp({
     input: '',
     models: [
       { name: 'o1', value: 'o1' },
-      { name: 'o1 Mini', value: 'o1-mini' },
       { name: 'o3 Mini', value: 'o3-mini' },
       { name: 'DeepSeek R1', value: 'DeepSeek-R1' },
       { name: 'GPT-4o', value: 'gpt-4o' },
@@ -25,13 +24,10 @@ createApp({
       return 'Chat with ' + this.models.find(model => model.value == this.settings.model).name
     },
     is_oX() {
-      return ['o1', 'o1-mini', 'o3-mini'].includes(this.settings.model)
+      return ['o1', 'o3-mini'].includes(this.settings.model)
     },
     is_r1() {
       return this.settings.model == 'DeepSeek-R1'
-    },
-    is_instruction_unsupported() {
-      return ['o1-mini', 'DeepSeek-R1'].includes(this.form.model)
     },
     is_streaming_unsupported() {
       return this.is_oX || this.settings.model == 'Llama-3.3-70B-Instruct'
@@ -125,9 +121,8 @@ createApp({
     },
     payload() {
       const messages = this.messages.filter(message => message.role != 'thoughts').slice(-7)
-      const is_instruction_supported = !['o1-mini', 'DeepSeek-R1'].includes(this.settings.model)
 
-      if (is_instruction_supported && messages.find(message => message.role == 'system') == undefined) {
+      if (messages.find(message => message.role == 'system') == undefined) {
         messages.unshift({ role: 'system', content: this.settings.system[this.settings.model] })
       }
 
